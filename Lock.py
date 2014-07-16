@@ -5,11 +5,11 @@ To implement the "Pull":
 -Set "read only" on all files except already locked by the user
 """
 import pickle
-import os
-from Unknowname import username
-from Unknowname import filename
-from Unknowname import USER_LOCK
-def Check():
+import os, stat
+from Unknowname import username#just for check. I I'll remove it
+from Unknowname import filename#just for check. I I'll remove it
+from Unknowname import USER_LOCK#just for check. I I'll remove it
+def Check():#need a path to the user_lock
     """returns the dict or 0 if the file is empty"""
     if os.stat(USER_LOCK).st_size==0:
         return 0  
@@ -18,7 +18,7 @@ def Check():
             fileuser = pickle.load(f)#fileuser is a dict,key==filename,value==user who locked
         return fileuser
         
-def LockedFile(username, filename):
+def LockedFile(filename):
     """Returns 0 if the file is unlocked, 1 if locked"""
     fileuser = Check()
     if fileuser == 0:
@@ -28,7 +28,7 @@ def LockedFile(username, filename):
     else:
         return 0
         
-def ListOfLockedFiles():
+def ListOfLockedFiles():#need a path to the user_lock
     """Returns a list of locked files or None if user_lock is empty"""
     fileuser = Check()
     if fileuser == 0:
@@ -36,7 +36,7 @@ def ListOfLockedFiles():
     else:
         return fileuser.keys()
     
-def FilesAndUsers():
+def FilesAndUsers():#need a path to the user_lock
     """Returns a dict,key==filename,value==user who locked  or None if user_lock is empty"""
     fileuser = Check()
     if fileuser == 0:
@@ -44,5 +44,21 @@ def FilesAndUsers():
     else:
         return fileuser
         
-def ReadOnly()
-print LockedFile(username, filename)  
+def ReadOnly(username, path):
+    """Set "read only" on file if it wasn't blocked by current user"""
+    fileuser = Check()
+    if fileuser == 0:
+        os.chmod(path, stat.S_IREAD)
+    elif path not in fileuser:
+        os.chmod(path, stat.S_IREAD)
+    elif fileuser[path] != username:
+        os.chmod(path, stat.S_IREAD)
+
+def Walk(dir, username):#need a path to the repository and username
+    """Recursively through all the files and subdirectories of this repository"""
+    for name in os.listdir(dir):
+        path = os.path.join(dir, name)
+        if os.path.isfile(path):
+            ReadOnly(username,path)
+        else:
+            Walk(path, username)
