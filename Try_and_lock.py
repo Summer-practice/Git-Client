@@ -10,37 +10,49 @@ import os
 import stat
 import wx
 
+from Unlock import GetUserLockName
 from Lock import LockedFile
-from Lock import Check
-from Unknowname import USER_LOCK#just for check. I I'll remove it
+from Lock import UserLockGet
 
 def LockFiles(list_of_files, username):#list_of_files is List of files to lock
     """
     If file is locked by another user calls the error window.
-    if not  puts the file name in the user_lock
+    if not - puts the file name in the user_lock
     """
+    
     lockList  = list()
     errorList = list()
+    USER_LOCK = GetUserLockName()
+    userLockNew = dict()
     
-    for element in list_of_files:
+    for element in list_of_files:#There are 2 lists: already locked and unlocked
         if not LockedFile(element):
             lockList.append(element)
         else:
             errorList.append(element)
         
-    if Check():
-        userLockDict = Check()
+    if UserLockGet():
+        userLockDict = UserLockGet()
         
     if lockList:
         for element in lockList:
             userLockDict[element] = username
             
+        for element in userLockDict:#Cut off part of the way. Because it's differ from user to user
+            newElem = element[len(LocalRepositoryName())-len(os.path.dirname(LocalRepositoryName())):len(element)]
+            userLockNew[newElem] = userLockDict[element]
+            
+        os.chmod(USER_LOCK, stat.S_IWRITE)   
         with open(USER_LOCK, 'w') as f:
-             pickle.dump(userLockDict,f)
+             pickle.dump(userLockNew,f)
+        os.chmod(USER_LOCK, stat.S_IREAD)
         RemoveReadOnly(lockList)
         
-    if errorList:
-        pass #Call the error window
+    if errorList:#Call the error window.
+        for element in errorList:
+            msg = "Cannot lock the file %s. It is already locked by %s!" %(element, userLockDict[element])
+            dlg2 = wx.MessageDialog(parent=None, message=msg, caption="Git Client Error", style=wx.OK|wx.ICON_ERROR)
+            result = dlg2.ShowModal() 
     
         
 def RemoveReadOnly(lockList):
