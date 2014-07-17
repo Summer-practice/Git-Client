@@ -1,64 +1,82 @@
 # -*- coding: utf-8 -*-
 """
-To implement the "Pull": 
+For the "Pull": 
 -Receive a list of locked files 
 -Set "read only" on all files except already locked by the user
 """
 import pickle
-import os, stat
-from Unknowname import username#just for check. I I'll remove it
-from Unknowname import filename#just for check. I I'll remove it
-from Unknowname import USER_LOCK#just for check. I I'll remove it
-def Check():#need a path to the user_lock
-    """returns the dict or 0 if the file is empty"""
-    if os.stat(USER_LOCK).st_size==0:
+import os
+import stat
+
+from Unlock import GetUserLockName
+
+def UserLockGet():
+    """Returns the dict or 0 if the user_lock is empty"""
+    
+    USER_LOCK = GetUserLockName()
+    userLockNew = dict()
+    
+    if not os.stat(USER_LOCK).st_size:
         return 0  
+        
     else:
         with open(USER_LOCK, 'r') as f:
-            fileuser = pickle.load(f)#fileuser is a dict,key==filename,value==user who locked
-        return fileuser
+            userLockDict = pickle.load(f)#userLockDict is a dict,key==filename,value==user who locked
+        
+        rep = LocalRepositoryName()
+        sect = rep[0:len(rep)-os.path.dirname(LocalRepositoryName())]
+        
+        for element in userLockDict:#Add part of the way. Because it's different for different user
+            newElem = sect + element
+            userLockNew[newElem] = userLockDict[element]
+        return userLockNew
+        
         
 def LockedFile(filename):
     """Returns 0 if the file is unlocked, 1 if locked"""
-    fileuser = Check()
-    if fileuser == 0:
-        return 0
-    elif filename in fileuser:
-            return 1
+    
+    userLockDict = UserLockGet() 
+    
+    if not userLockDict :
+        return 0    
+    elif filename in userLockDict:
+            return 1        
     else:
         return 0
         
-def ListOfLockedFiles():#need a path to the user_lock
-    """Returns a list of locked files or None if user_lock is empty"""
-    fileuser = Check()
-    if fileuser == 0:
-        return None
-    else:
-        return fileuser.keys()
+        
+def ListOfLockedFiles():
+    """Returns a list of locked files or False if "user_lock" is empty"""
     
-def FilesAndUsers():#need a path to the user_lock
-    """Returns a dict,key==filename,value==user who locked  or None if user_lock is empty"""
-    fileuser = Check()
-    if fileuser == 0:
-        return None
+    userLockDict = UserLockGet()
+    
+    if not userLockDict :
+        return False    
     else:
-        return fileuser
+        return userLockDict.keys()
+        
+        
         
 def ReadOnly(username, path):
-    """Set "read only" on file if it wasn't blocked by current user"""
-    fileuser = Check()
-    if fileuser == 0:
+    """Set "read only" on file if it wasn't blocked by user"""
+    
+    userLockDict = UserLockGet()
+    
+    if not LockedFile(path) :
         os.chmod(path, stat.S_IREAD)
-    elif path not in fileuser:
+        
+    elif userLockDict[path] != username:
         os.chmod(path, stat.S_IREAD)
-    elif fileuser[path] != username:
-        os.chmod(path, stat.S_IREAD)
+        
 
-def Walk(dir, username):#need a path to the repository and username
+def Walk(direct, username):#need a path to the  local repository and username
     """Recursively through all the files and subdirectories of this repository"""
-    for name in os.listdir(dir):
-        path = os.path.join(dir, name)
+    
+    for name in os.listdir(direct):
+        path = os.path.join(direct, name)
+        
         if os.path.isfile(path):
             ReadOnly(username,path)
+            
         else:
             Walk(path, username)
