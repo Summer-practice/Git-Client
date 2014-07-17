@@ -2,80 +2,70 @@ import subprocess as sp
 import os
 
 def Pull(dirPath):
-    oldPath = os.path.abspath()
+    
     os.chdir(dirPath)
     cmd = 'git pull'
-    try:
-        errorlevel = sp.call(cmd, shell = True)
-        if(errorlevel==0)
-            Walk(dirPath, getUserEmail()) #readonly всем незаблокированным!!!
-        return errorlevel
+  
+    errorlevel = sp.call(cmd, shell = True)
+    if(errorlevel==0)
+        Walk(dirPath, getUserEmail()) #readonly for all unlocked!!!
+    return errorlevel
 
-    finally:
-        os.chdir(oldPath)
-        
+          
 
 
-def Push(dirPath,FilesPath,comment):      #comment - комментарий пользователя
-                                          #FilesPath список файлов для push-a
-    oldPath = os.path.abspath()
+def Push(dirPath,FilesPath,comment):      #FilesPath - files for 'push'
+   
     os.chdir(dirPath)
     i = len(FilesPath)
-    cmd = 'git add %s\%s' %(dirPath,str(FilesPath[len(FilesPath)-i]))
-    try:
-        while (i>0):
-              errorlevel = sp.call(cmd, shell = True)
-              if errorlevel!=0:
-                  return errorlevel
-              i=i-1
-        cmd = 'git commit -m \"%s\"' %comment
+    cmd = 'git add %s' %str(FilesPath[len(FilesPath)-i])
+    while (i>0):
+            errorlevel = sp.call(cmd, shell = True)
+            if errorlevel!=0:
+                return errorlevel
+            i=i-1
+    cmd = 'git commit -m \"%s\"' %comment
+    errorlevel = sp.call(cmd, shell = True)
+    if errorlevel!=0:
+        return errorlevel
+    cmd = 'git push'
+    errorlevel = sp.call(cmd, shell = True)
+
+    if errorlevel == 0:
+        UnlockFiles(FilesPath) 
+    return errorlevel
+        
+   
+
+    
+
+def Undo (dirPath,UndoFiles):
+  
+    os.chdir(dirPath)
+    i = len(UndoFiles)
+    while (i>0):
+        path = dirPath+"\\"+str(UndoFiles[len(UndoFiles)-i])
+        cmd = 'git checkout -- %s' %UndoFiles[len(UndoFiles)-i]
         errorlevel = sp.call(cmd, shell = True)
         if errorlevel!=0:
             return errorlevel
-        cmd = 'git push'
-        errorlevel = sp.call(cmd, shell = True)
-
-        if errorlevel == 0:
-            UnlockFiles(FilesPath) #разблокируем файлы
-        return errorlevel
-        
-    finally:
-        os.chdir(oldPath)
-
-def Undo (dirPath,UndoFiles)
-    oldPath = os.path.abspath()
-    os.chdir(dirPath)
-    i = len(UndoFiles)
-    path = dirPath+"\\"+str(UndoFiles[len(UndoFiles)-i])
-    cmd = 'git checkout --%s\%s' %(dirPath,str(UndoFiles[len(UndoFiles)-i]))
-    try:
-        while (i>0):
-              errorlevel = sp.call(cmd, shell = True)
-              if errorlevel!=0:
-                  return errorlevel
-              i=i-1
-              Readonly(getUserEmail(),path)
-        return errorlevel
-    finally:
-        os.chdir(oldPath)       
-        
+        i=i-1
+        Readonly(getUserEmail(),path)
+    return errorlevel
     
         
 
-def IsGit(dirPath)  #является ли текущая директория .git?
+def IsGit(dirPath):  #.git?
 
-    oldPath = os.path.abspath()
     os.chdir(dirPath)
     cmd = 'git status'
-    try:
-        errorlevel = sp.call(cmd, shell = True)
-        return errorlevel
-    finally:
-        os.chdir(oldPath)
+    errorlevel = sp.call(cmd, shell = True)
+    return errorlevel
+    
         
 
-def getUserEmail()
-   cmd = 'git config user.email'
+def getUserEmail():
+    cmd = 'git config user.email'
     PIPE = sp.PIPE
     p = sp.Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE,
          stderr=sp.STDOUT, close_fds=False)
@@ -83,11 +73,11 @@ def getUserEmail()
     return s
 
 
-def getOtherFiles (dirPath) #возвращает список остальных файлов, т.е. не включённых в git
-    oldPath = os.path.abspath()
+def getOtherFiles (dirPath): #unversioned files
+    
     os.chdir(dirPath)
     OtherFiles = []
-    cmd = 'gir ls-files --others'
+    cmd = 'git ls-files --others'
     PIPE = sp.PIPE
     p = sp.Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE,
         stderr=sp.STDOUT, close_fds=False)
@@ -95,12 +85,27 @@ def getOtherFiles (dirPath) #возвращает список остальных файлов, т.е. не включён
         s = p.stdout.readline()
         if not s: break
         OtherFiles.append(s)
-    os.chdir(oldPath)
     return OtherFiles
 
 
-def getLockedFiles (dirPath) # возвращает словарь изменённых файлов и  их статусы
-    oldPath = os.path.abspath()
+
+def getGitFiles (dirPath)       #return a list with GIT files (main window)
+    os.chdir(dirPath)
+    GitFiles = []
+    cmd = 'git ls-files --cached'
+    PIPE = sp.PIPE
+    p = sp.Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE,
+        stderr=sp.STDOUT, close_fds=False)
+    while True:
+        s = p.stdout.readline()
+        if not s: break
+        GitFiles.append(s)
+    return GitFiles
+        
+
+
+def getLockedFiles (dirPath): #dict [name of changed file] = status (M or D)
+    
     os.chdir(dirPath)
     dictChangedFiles= {}
     cmd 'git diff --name-status'
@@ -115,6 +120,24 @@ def getLockedFiles (dirPath) # возвращает словарь изменённых файлов и  их статус
     return dictChangedFiles
     
 
-def getStatusLockedFiles(dirPath) #Функция возвращает словарь, ключ - путь к файлу, значение - статус
+def getLocalPath(dirPath): #Path for locak git repository
+    for name in os.listdir(dirPath):
+        path = os.path.join(dirPath, name)
+        s = str(path)
+        i = len(s)        
+        while(s[i-1] != '\\'):
+            i=i-1
+        names = s[i:len(s)]
+
+        if (os.path.isdir(path)and names=='.git'):
+            ret = s[0:len(s)-5]
+            return ret
+
+    s = str(dirPath)
+    i = len(s)        
+    while(s[i-1] != '\\'):
+        i=i-1
+    dirPath = s[0:i-1]
+    getLocalPath(dirPath)
       
     
