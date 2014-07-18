@@ -2,7 +2,6 @@ import wx
 import undoChangesWindowGui
 from blankFunc import *
 
-# Implementing undoChangesWindow
 class undoChangesWindow( undoChangesWindowGui.undoChangesWindowGui ):
     def __init__( self, parent, items, direction ):
         undoChangesWindowGui.undoChangesWindowGui.__init__( self, parent )
@@ -29,20 +28,9 @@ class undoChangesWindow( undoChangesWindowGui.undoChangesWindowGui ):
     dirPath = " "
     listFiles = []
 
-	# Handlers for undoChangesWindow events.
-    """def listBoxSelectedItemFunc( self, event ):
-		# TODO: Implement listBoxSelectedItemFunc
-		pass
-
-	def listBoxToggledFunc( self, event ):
-		# TODO: Implement listBoxToggledFunc
-		pass"""
-
     def selectDeselectAllFunc( self, event ):
-		# TODO: Implement selectDeselectAllFunc
         i = 0
         if self.selectFlag == 0:
-            #i = 0
             self.selectFlag = 1
             while i < self.numFiles:
                 self.checkList.Check(i, True)
@@ -54,7 +42,6 @@ class undoChangesWindow( undoChangesWindowGui.undoChangesWindowGui ):
                 i = i + 1
 
     def okClickFunc( self, event ):
-		# TODO: Implement okClickFunc
         i = 0
         selectedFiles = []
         while i < self.numFiles:
@@ -69,7 +56,6 @@ class undoChangesWindow( undoChangesWindowGui.undoChangesWindowGui ):
         result = dlg.ShowModal()
 
     def cancelClickFunc( self, event ):
-		# TODO: Implement cancelClickFunc
         self.Close()
 
 
