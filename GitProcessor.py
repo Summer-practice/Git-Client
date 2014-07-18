@@ -51,7 +51,6 @@ def Undo (dirPath,UndoFiles):
             return errorlevel
         i=i-1
         UnlockFiles(FilesPath)
-        Readonly(getUserEmail(),path)
     return errorlevel
     
         
@@ -105,7 +104,8 @@ def getGitFiles (dirPath):       #return a list with GIT files (main window)
         
 
 
-def getLockedFiles (dirPath): #dict [name of changed file] = status (M or D)
+def getLockedFiles (dirPath): #dict [name of changed file] = status
+                              #(M(modified) or D(deleted))
     
     os.chdir(dirPath)
     dictChangedFiles= {}
@@ -121,7 +121,7 @@ def getLockedFiles (dirPath): #dict [name of changed file] = status (M or D)
     return dictChangedFiles
     
 
-def getLocalPath(dirPath): #Path for locak git repository
+def getLocalPath(dirPath): #Path for local git repository
     for name in os.listdir(dirPath):
         path = os.path.join(dirPath, name)
         s = str(path)

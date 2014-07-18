@@ -13,6 +13,7 @@ import wx
 from Unlock import GetUserLockName
 from Lock import LockedFile
 from Lock import UserLockGet
+from GitProcessor import getLocalPath#Unfortunately, I don't have any directory for this function
 
 def LockFiles(list_of_files, username):#list_of_files is List of files to lock
     """
@@ -39,7 +40,7 @@ def LockFiles(list_of_files, username):#list_of_files is List of files to lock
             userLockDict[element] = username
             
         for element in userLockDict:#Cut off part of the way. Because it's differ from user to user
-            newElem = element[len(LocalRepositoryName())-len(os.path.dirname(LocalRepositoryName())):len(element)]
+            newElem = element[len(getLocalPath())-len(os.path.dirname(getLocalPath())):len(element)]
             userLockNew[newElem] = userLockDict[element]
             
         os.chmod(USER_LOCK, stat.S_IWRITE)   
