@@ -1,8 +1,12 @@
 import wx
+
+"""from Lock import *
+from Unlock import *
+from Try_and_lock import  *"""
+
 from blankFunc import *
 import unlockAndPushWindowGui
 
-# Implementing unlockAndPushWindGow
 class unlockAndPushWindow( unlockAndPushWindowGui.unlockAndPushWindowGui ):
     def __init__( self, parent, items, direction ):
         unlockAndPushWindowGui.unlockAndPushWindowGui.__init__( self, parent )
@@ -20,25 +24,6 @@ class unlockAndPushWindow( unlockAndPushWindowGui.unlockAndPushWindowGui ):
     numFiles = 0
     dirPath = " "
     listFiles = []
-    #comment = "No comment"
-	# Handlers for unlockAndPushWindow events.
-    def commentTextFunc( self, event ):
-        #print self.commentBox.GetValue()
-        # TODO: Implement commentTextFunc
-        pass
-
-    def commentEnterFunc( self, event ):
-        # "123"
-        # TODO: Implement commentEnterFunc
-        pass
-
-    def listBoxSelectedItemFunc( self, event ):
-		# TODO: Implement listBoxSelectedItemFunc
-		pass
-
-    def listBoxToggledFunc( self, event ):
-		# TODO: Implement listBoxToggledFunc
-		pass
 
     def selectDeselectAllFunc( self, event ):
         i = 0
@@ -70,7 +55,6 @@ class unlockAndPushWindow( unlockAndPushWindowGui.unlockAndPushWindowGui ):
                 i = i + 1
 
     def okClickFunc( self, event ):
-        # Peredavat Ane self.dirPath
         i = 0
         selectedFiles = []
         while i < self.numFiles:
@@ -85,15 +69,6 @@ class unlockAndPushWindow( unlockAndPushWindowGui.unlockAndPushWindowGui ):
         dlg = wx.MessageDialog(parent=None, message=msg, caption="Git Client Message", style=wx.OK|wx.ICON_INFORMATION)
         result = dlg.ShowModal()
 
-		# TODO: Implement okClickFunc
-
     def cancelClickFunc( self, event ):
         self.Close()
-		# TODO: Implement cancelClickFunc
-		#pass
-
-"""app = wx.App(False)
-frame = formsUnlockAndPushWindow(None, ["111", "222"])
-frame.Show(True)
-app.MainLoop()"""
 
