@@ -18,8 +18,8 @@ def Push(dirPath,FilesPath,comment):      #FilesPath - files for 'push'
    
     os.chdir(dirPath)
     i = len(FilesPath)
-    cmd = 'git add %s' %str(FilesPath[len(FilesPath)-i])
     while (i>0):
+            cmd = 'git add %s' %str(FilesPath[len(FilesPath)-i])
             errorlevel = sp.call(cmd, shell = True)
             if errorlevel!=0:
                 return errorlevel
@@ -50,6 +50,7 @@ def Undo (dirPath,UndoFiles):
         if errorlevel!=0:
             return errorlevel
         i=i-1
+        UnlockFiles(FilesPath)
         Readonly(getUserEmail(),path)
     return errorlevel
     
@@ -89,7 +90,7 @@ def getOtherFiles (dirPath): #unversioned files
 
 
 
-def getGitFiles (dirPath)       #return a list with GIT files (main window)
+def getGitFiles (dirPath):       #return a list with GIT files (main window)
     os.chdir(dirPath)
     GitFiles = []
     cmd = 'git ls-files --cached'
@@ -108,7 +109,7 @@ def getLockedFiles (dirPath): #dict [name of changed file] = status (M or D)
     
     os.chdir(dirPath)
     dictChangedFiles= {}
-    cmd 'git diff --name-status'
+    cmd = 'git diff --name-status'
     PIPE = subprocess.PIPE
     p = sp.Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE,
          stderr=sp.STDOUT, close_fds=False)
