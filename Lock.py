@@ -9,6 +9,7 @@ import os
 import stat
 
 from Unlock import GetUserLockName
+from GitProcessor import getLocalPath#Unfortunately, I don't have any directory for this function
 
 def UserLockGet():
     """Returns the dict or 0 if the user_lock is empty"""
@@ -23,8 +24,8 @@ def UserLockGet():
         with open(USER_LOCK, 'r') as f:
             userLockDict = pickle.load(f)#userLockDict is a dict,key==filename,value==user who locked
         
-        rep = LocalRepositoryName()
-        sect = rep[0:len(rep)-os.path.dirname(LocalRepositoryName())]
+        rep = getLocalPath()
+        sect = rep[0:len(rep)-os.path.dirname(getLocalPath())]
         
         for element in userLockDict:#Add part of the way. Because it's different for different user
             newElem = sect + element
