@@ -74,7 +74,6 @@ class mainWindowGui ( wx.Frame ):
         self.Centre( wx.BOTH )
 
 		# Connect Events
-        self.browse_path.Bind( wx.EVT_TEXT, self.textPathFunc )
         self.browse_path.Bind( wx.EVT_TEXT_ENTER, self.enterPathFunc )
         self.browse_button.Bind( wx.EVT_BUTTON, self.browseButtonFunc )
         #self.list_ctrl.Bind( wx.EVT_LIST_ITEM_ACTIVATED, self.itemActivatedFunc )
@@ -90,9 +89,6 @@ class mainWindowGui ( wx.Frame ):
 
 
 	# Virtual event handlers, overide them in your derived class
-	def textPathFunc( self, event ):
-		event.Skip()
-
 	def enterPathFunc( self, event ):
 		event.Skip()
 
