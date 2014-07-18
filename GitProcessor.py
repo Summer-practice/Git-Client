@@ -51,7 +51,6 @@ def Undo (dirPath,UndoFiles):
             return errorlevel
         i=i-1
         UnlockFiles(FilesPath)
-        Readonly(getUserEmail(),path)
     return errorlevel
     
         
