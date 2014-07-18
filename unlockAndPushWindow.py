@@ -1,8 +1,8 @@
 import wx
 
-from Lock import *
+"""from Lock import *
 from Unlock import *
-from Try_and_lock import  *
+from Try_and_lock import  *"""
 
 from blankFunc import *
 import unlockAndPushWindowGui
