@@ -16,7 +16,7 @@ def getStatusFiles(dirPath):
 
 def getUserEmail():
 	#return current user's e-mail
-	return "returned-e-mail@mail.ru"
+	return "returned-mail@mail.ru"
 
 def LockFiles(list_of_files, usermail):
 	# lock the files from list_of_files
